@@ -17,6 +17,7 @@ import {
   getUserPosts,
   getfollowersAndFollowing,
   follow,
+  unfollow,
   isFollowing,
   getfollowers,
   getfollowing
@@ -80,7 +81,7 @@ class Profile extends Component {
 
         if (error.status === 404) {
           notification.error({
-            message: "MyMoments",
+            message: "SnapVerse",
             description: "user not found"
           });
         }
@@ -129,6 +130,26 @@ class Profile extends Component {
       this.setState({ followLoading: false, isFollowing: true });
       this.getfollowersAndFollowing(this.state.currentUser.username);
     });
+  };
+
+  handleUnfollow = () => {
+    this.setState({ followLoading: true });
+
+    const followRequest = {
+      follower: this.props.currentUser,
+      following: this.state.currentUser
+    };
+
+    unfollow(followRequest)
+      .then(() => {
+        this.setState({
+          followLoading: false,
+          isFollowing: false,
+          followText: "Follow"
+        });
+        this.getfollowersAndFollowing(this.state.currentUser.username);
+      })
+      .catch(() => this.setState({ followLoading: false }));
   };
 
   handleFollowersClick = () => {
@@ -185,8 +206,13 @@ class Profile extends Component {
       );
     } else {
       followBtn = (
-        <Button type="secondary" className="follow-btn">
-          Following
+        <Button
+          type="default"
+          className="follow-btn"
+          loading={this.state.followLoading}
+          onClick={this.handleUnfollow}
+        >
+          Unfollow
         </Button>
       );
     }

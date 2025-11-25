@@ -39,8 +39,13 @@ public class FeedService {
                 feedRepository.findByUsername(username, request);
 
         if(page.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    String.format("Feed not found for user %s", username));
+            log.info("feed empty for user {}, returning empty slice", username);
+            return SlicedResult
+                    .<Post>builder()
+                    .content(Collections.emptyList())
+                    .isLast(true)
+                    .pagingState(null)
+                    .build();
         }
 
         String pageState = null;

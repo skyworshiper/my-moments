@@ -20,4 +20,7 @@ public class Post {
     private String lastModifiedBy;
     private String imageUrl;
     private String caption;
+
+    private long likeCount;
+    private long commentCount;
 }

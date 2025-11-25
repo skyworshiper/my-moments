@@ -14,7 +14,7 @@ spring:
       max-request-size: 20MB
 
 file:
-  upload-dir: /home/amr/insta-clone-images/
+  upload-dir: ./uploads/images/
   path:
     prefix: /images
 

@@ -155,6 +155,23 @@ public class UserEndpoint {
 
     }
 
+    @GetMapping(value = "/users/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserSummary>> searchUsers(
+            @RequestParam(value = "q", required = false) String query,
+            @RequestParam(value = "limit", defaultValue = "20") int limit) {
+
+        int pageLimit = Math.min(Math.max(limit, 1), 50);
+        log.info("searching users query '{}' limit {}", query, pageLimit);
+
+        List<UserSummary> summaries = userService
+                .searchUsers(query, pageLimit)
+                .stream()
+                .map(this::convertTo)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(summaries);
+    }
+
     private UserSummary convertTo(User user) {
         return UserSummary
                 .builder()

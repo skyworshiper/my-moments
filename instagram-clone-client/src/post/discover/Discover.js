@@ -1,17 +1,20 @@
 import React, { Component } from "react";
 import Slider from "react-slick";
 import "./discover.css";
-import { Card, Avatar, Button } from "antd";
-import { getAllUsers } from "../../util/ApiUtil";
+import { Card, Avatar, Button, Input, Empty, message } from "antd";
+import { follow, searchUsers } from "../../util/ApiUtil";
 import { ACCESS_TOKEN } from "../../common/constants";
 import LoadingIndicator from "../../common/LoadingIndicator";
 
 const { Meta } = Card;
+const { Search } = Input;
 
 class Discover extends Component {
   state = {
     isLoading: false,
-    users: []
+    users: [],
+    query: "",
+    followStates: {}
   };
 
   componentDidMount = () => {
@@ -19,19 +22,82 @@ class Discover extends Component {
       this.props.history.push("/login");
     }
 
-    this.loadAllUers();
+    this.loadUsers("");
   };
 
-  loadAllUers = () => {
-    this.setState({ isLoading: true });
+  loadUsers = query => {
+    this.setState({ isLoading: true, query });
 
-    getAllUsers()
-      .then(Response => this.setState({ users: Response, isLoading: false }))
-      .catch(error => this.setState({ isLoading: false }));
+    searchUsers(query)
+      .then(response => this.setState({ users: response, isLoading: false }))
+      .catch(error => {
+        console.log("failed to search users", error);
+        this.setState({ isLoading: false });
+      });
   };
 
   handleOnCardClick = username => {
     this.props.history.push("/users/" + username);
+  };
+
+  handleFollow = user => {
+    if (user.username === this.props.currentUser.username) {
+      return;
+    }
+
+    const followState = this.state.followStates[user.username];
+    if (followState && followState.loading) {
+      return;
+    }
+
+    this.setState(prevState => ({
+      followStates: {
+        ...prevState.followStates,
+        [user.username]: { loading: true, following: false }
+      }
+    }));
+
+    const followRequest = {
+      follower: this.props.currentUser,
+      following: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        profilePicture: user.profilePicture
+      }
+    };
+
+    follow(followRequest)
+      .then(() => {
+        this.setState(prevState => ({
+          followStates: {
+            ...prevState.followStates,
+            [user.username]: { loading: false, following: true }
+          }
+        }));
+        message.success(`You are now following ${user.username}`);
+      })
+      .catch(error => {
+        message.error(error.message || "Follow failed, please try again later");
+        this.setState(prevState => ({
+          followStates: {
+            ...prevState.followStates,
+            [user.username]: { loading: false, following: false }
+          }
+        }));
+      });
+  };
+
+  handleSearch = value => {
+    this.loadUsers(value.trim());
+  };
+
+  handleInputChange = event => {
+    const value = event.target.value;
+    this.setState({ query: value });
+    if (!value) {
+      this.loadUsers("");
+    }
   };
 
   render() {
@@ -45,16 +111,35 @@ class Discover extends Component {
       slidesToScroll: 4
     };
 
+    const filteredUsers = this.state.users.filter(
+      user => user.username !== this.props.currentUser.username
+    );
+
     return (
       <div className="discover-container">
         <div className="title">
           <h3>Discover people</h3>
         </div>
+        <div className="discover-search">
+          <Search
+            placeholder="Search by name or username"
+            value={this.state.query}
+            onChange={this.handleInputChange}
+            onSearch={this.handleSearch}
+            enterButton
+            allowClear
+          />
+        </div>
+        {filteredUsers.length === 0 ? (
+          <Empty description="No users found" />
+        ) : (
         <Slider {...settings}>
-          {this.state.users
-            .filter(user => user.username !== this.props.currentUser.username)
-            .map(user => (
-              <div>
+          {filteredUsers.map(user => {
+            const followState = this.state.followStates[user.username] || {};
+            const isFollowing = followState.following;
+
+            return (
+              <div key={user.id || user.username}>
                 <Card
                   hoverable
                   style={{ width: 230 }}
@@ -65,26 +150,34 @@ class Discover extends Component {
                     >
                       <Avatar
                         className="avatar"
-                        src={user.userProfile.profilePictureUrl}
+                        src={user.profilePicture}
                       />
                     </div>
                   }
                   actions={[
-                    <Button type="primary" className="follow-btn">
-                      Follow
+                    <Button
+                      type={isFollowing ? "default" : "primary"}
+                      className="follow-btn"
+                      loading={followState.loading}
+                      onClick={() => this.handleFollow(user)}
+                      disabled={isFollowing}
+                    >
+                      {isFollowing ? "Following" : "Follow"}
                     </Button>
                   ]}
                 >
                   <Meta
                     onClick={() => this.handleOnCardClick(user.username)}
                     className="card-meta"
-                    title={user.userProfile.displayName}
+                    title={user.name}
                     description={"@" + user.username}
                   />
                 </Card>
               </div>
-            ))}
+            );
+          })}
         </Slider>
+        )}
       </div>
     );
   }

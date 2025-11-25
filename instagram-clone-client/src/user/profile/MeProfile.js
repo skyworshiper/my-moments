@@ -97,20 +97,20 @@ class MeProfile extends Component {
             this.props.onUpdateCurrentUser(currentUser);
 
             notification.success({
-              message: "MyMoments",
+              message: "SnapVerse",
               description: "Profile picture updated"
             });
           })
           .catch(error => {
             notification.error({
-              message: "MyMoments",
+              message: "SnapVerse",
               description: "Something went wrong. Please try again!"
             });
           });
       })
       .catch(error => {
         notification.error({
-          message: "MyMoments",
+          message: "SnapVerse",
           description:
             error.message || "Something went wrong. Please try again!"
         });
@@ -283,6 +283,8 @@ class MeProfile extends Component {
                 <PostGrid
                   onGetUserPosts={this.props.onGetUserPosts}
                   posts={this.props.posts}
+                  canDelete={true}
+                  showCaption={false}
                 />
               </TabPane>
               <TabPane

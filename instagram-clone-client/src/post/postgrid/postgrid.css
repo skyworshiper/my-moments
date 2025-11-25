@@ -1,3 +1,10 @@
+.img-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
 .img-container {
   position: relative;
   height: 293px;
@@ -10,4 +17,25 @@
   height: 100%;
   width: 100%;
   object-fit: cover;
+  z-index: 1;
+}
+
+.grid-delete-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.grid-caption {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #444;
+  min-height: 44px;
+  white-space: pre-wrap;
+  border-bottom: 1px solid #f0f0f0;
 }

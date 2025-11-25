@@ -62,6 +62,8 @@ public class FeedGeneratorService {
                 throw new UnableToGetFollowersException(message);
             }
         }
+
+        addAuthorPostToFeed(post, token);
     }
 
     private UserFeed convertTo(User user, Post post) {
@@ -72,5 +74,20 @@ public class FeedGeneratorService {
                 .postId(post.getId())
                 .createdAt(post.getCreatedAt())
                 .build();
+    }
+
+    private void addAuthorPostToFeed(Post post, String token) {
+        User author = tokenService.findUserSummary(token, post.getUsername())
+                .map(summary -> User.builder()
+                        .userId(summary.getId())
+                        .username(summary.getUsername())
+                        .build())
+                .orElseGet(() -> User.builder()
+                        .userId(post.getUsername())
+                        .username(post.getUsername())
+                        .build());
+
+        log.info("ensuring author {} sees post {} in feed", author.getUsername(), post.getId());
+        feedRepository.insert(convertTo(author, post));
     }
 }

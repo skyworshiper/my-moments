@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Empty, List } from "antd";
+import { Empty, List, Popconfirm, Icon, message } from "antd";
 import LoadingIndicator from "../../common/LoadingIndicator";
 import "./postgrid.css";
+import { deletePost } from "../../util/ApiUtil";
 
 class PostGrid extends Component {
   state = { isLoading: false };
@@ -10,6 +11,19 @@ class PostGrid extends Component {
     this.setState({ isLoading: true });
     this.props.onGetUserPosts();
     this.setState({ isLoading: false });
+  };
+
+  handleDelete = item => {
+    deletePost(item.id)
+      .then(() => {
+        message.success("Post deleted");
+        if (this.props.onGetUserPosts) {
+          this.props.onGetUserPosts();
+        }
+      })
+      .catch(error =>
+        message.error(error.message || "Unable to delete post")
+      );
   };
 
   render() {
@@ -33,8 +47,25 @@ class PostGrid extends Component {
           dataSource={this.props.posts}
           renderItem={item => (
             <List.Item>
-              <div className="img-container">
-                <img alt={item.id} src={item.imageUrl} />
+              <div className="img-card">
+                {this.props.showCaption !== false &&
+                  item.caption &&
+                  item.caption.trim() && (
+                  <div className="grid-caption">{item.caption}</div>
+                )}
+                <div className="img-container">
+                  {this.props.canDelete && (
+                    <Popconfirm
+                      title="Delete this post?"
+                      onConfirm={() => this.handleDelete(item)}
+                      okText="Delete"
+                      cancelText="Cancel"
+                    >
+                      <Icon type="delete" className="grid-delete-icon" />
+                    </Popconfirm>
+                  )}
+                  <img alt={item.id} src={item.imageUrl} />
+                </div>
               </div>
             </List.Item>
           )}

@@ -20,7 +20,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
     Long findInDegree(String username);
 
     @Query("MATCH (n1:User{ username:{0} }), (n2:User{username:{1} }) RETURN EXISTS((n1)-[:IS_FOLLOWING]->(n2))")
-    boolean isFollowing(String userA, String userB);
+    Boolean isFollowing(String userA, String userB);
 
     @Query("MATCH (n:User{username:{0}})<--(f:User) Return f")
     List<User> findFollowers(String username);
@@ -32,4 +32,12 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
     @Query("MATCH (n:User{username:{0}})-->(f:User) Return f")
     List<User> findFollowing(String username);
 
+    @Query("MATCH (u:User) WHERE u.username <> {0} "
+            + "AND NOT EXISTS((u)-[:IS_FOLLOWING]->(:User {username:{0}})) "
+            + "AND NOT EXISTS((:User {username:{0}})-[:IS_FOLLOWING]->(u)) "
+            + "RETURN u LIMIT {1}")
+    List<User> findSuggestedUsers(String username, int limit);
+
+    @Query("MATCH (u:User{username:{0}})-[r:IS_FOLLOWING]->(f:User{username:{1}}) DELETE r")
+    void deleteFriendship(String followerUsername, String followingUsername);
 }

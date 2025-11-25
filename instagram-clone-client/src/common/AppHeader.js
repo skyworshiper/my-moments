@@ -3,6 +3,7 @@ import { Menu, Row, Col, Input, Icon } from "antd";
 import { Link, withRouter } from "react-router-dom";
 import "./AppHeader.css";
 import NewPost from "../post/newpost/NewPost";
+import MessagesCenter from "../message/MessagesCenter";
 
 const Search = Input.Search;
 
@@ -16,8 +17,8 @@ class AppHeader extends Component {
           <Icon type="compass" />
         </Link>
       </Menu.Item>,
-      <Menu.Item key="notification">
-        <Icon type="heart" />
+      <Menu.Item key="messages">
+        <MessagesCenter currentUser={this.props.currentUser} />
       </Menu.Item>,
       <Menu.Item key="userProfile">
         <Link to={`/users/me`}>
@@ -32,7 +33,7 @@ class AppHeader extends Component {
           <Col span={8}>
             <div className="app-logo-container">
               <Link to="/">
-                <span>𝓜𝔂 𝓜𝓸𝓶𝓮𝓷𝓽𝓼</span>
+                <span>SnapVerse</span>
               </Link>
             </div>
           </Col>

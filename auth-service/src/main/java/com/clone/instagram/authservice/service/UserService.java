@@ -8,8 +8,10 @@ import com.clone.instagram.authservice.model.Role;
 import com.clone.instagram.authservice.repository.UserRepository;
 import com.clone.instagram.authservice.model.User;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +44,18 @@ public class UserService {
 
     public List<User> findByUsernameIn(List<String> usernames) {
         return userRepository.findByUsernameIn(usernames);
+    }
+
+    public List<User> searchUsers(String query, int limit) {
+        if(query == null || query.trim().isEmpty()) {
+            return userRepository
+                    .findAll(PageRequest.of(0, limit))
+                    .getContent();
+        }
+
+        return userRepository
+                .findTop20ByUsernameContainingIgnoreCaseOrUserProfile_DisplayNameContainingIgnoreCase(
+                        query, query);
     }
 
     public User registerUser(User user) {

@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -43,6 +45,21 @@ public class AuthService {
     public Map<String, String> usersProfilePic(String token,
                                                List<String> usernames) {
 
+        return fetchUserSummaries(token, usernames)
+                .stream()
+                .filter(summary -> summary.getUsername() != null)
+                .collect(toMap(UserSummary::getUsername,
+                        summary -> Optional.ofNullable(summary.getProfilePicture()).orElse("")));
+    }
+
+    public Optional<UserSummary> findUserSummary(String token, String username) {
+        return fetchUserSummaries(token, Collections.singletonList(username))
+                .stream()
+                .findFirst();
+    }
+
+    private List<UserSummary> fetchUserSummaries(String token, List<String> usernames) {
+
         ResponseEntity<List<UserSummary>> response =
                 authClient.findByUsernameIn(
                         jwtConfig.getPrefix() + token, usernames);
@@ -55,10 +72,7 @@ public class AuthService {
             throw new UnableToGetUsersException(message);
         }
 
-       return response
-                .getBody()
-                .stream()
-                .collect(toMap(UserSummary::getUsername,
-                        UserSummary::getProfilePicture));
+        return Optional.ofNullable(response.getBody())
+                .orElse(Collections.emptyList());
     }
 }

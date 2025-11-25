@@ -85,4 +85,25 @@ public class UserApi {
         return ResponseEntity.ok(userService.findFollowing(username));
     }
 
+    @GetMapping("/users/{username}/suggestions")
+    public ResponseEntity<?> findSuggestions(@PathVariable String username,
+                                             @RequestParam(value = "limit", defaultValue = "5") int limit) {
+        int cappedLimit = Math.min(Math.max(limit, 1), 20);
+        return ResponseEntity.ok(userService.findSuggestions(username, cappedLimit));
+    }
+
+    @DeleteMapping("/users/followers")
+    public ResponseEntity<?> unfollow(@RequestBody FollowRequest request) {
+
+        log.info("received unfollow request follower {} following {}",
+                request.getFollower().getUsername(), request.getFollowing().getUsername());
+
+        userService.unfollow(request.getFollower().getUsername(),
+                request.getFollowing().getUsername());
+
+        String message = String.format("user %s unfollowed user %s",
+                request.getFollower().getUsername(), request.getFollowing().getUsername());
+
+        return ResponseEntity.ok(new ApiResponse(true, message));
+    }
 }

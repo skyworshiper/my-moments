@@ -3,8 +3,11 @@ package com.clone.instagram.instapostservice.api;
 
 import com.clone.instagram.instapostservice.model.Post;
 import com.clone.instagram.instapostservice.payload.ApiResponse;
+import com.clone.instagram.instapostservice.payload.CommentRequest;
+import com.clone.instagram.instapostservice.payload.PostReactionsResponse;
 import com.clone.instagram.instapostservice.payload.PostRequest;
 import com.clone.instagram.instapostservice.service.PostService;
+import com.clone.instagram.instapostservice.service.PostReactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.validation.Valid;
 
 import java.net.URI;
 import java.security.Principal;
@@ -23,6 +28,9 @@ public class PostApi {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private PostReactionService postReactionService;
 
     @PostMapping("/posts")
     public ResponseEntity<?> createPost(@RequestBody PostRequest postRequest){
@@ -74,5 +82,34 @@ public class PostApi {
         log.info("found {} posts", posts.size());
 
         return ResponseEntity.ok(posts);
+    }
+
+    @PostMapping("/posts/{postId}/likes")
+    public ResponseEntity<PostReactionsResponse> likePost(@PathVariable("postId") String postId,
+                                                          @AuthenticationPrincipal Principal user) {
+        log.info("user {} liked post {}", user.getName(), postId);
+        return ResponseEntity.ok(postReactionService.likePost(postId, user.getName()));
+    }
+
+    @DeleteMapping("/posts/{postId}/likes")
+    public ResponseEntity<PostReactionsResponse> unlikePost(@PathVariable("postId") String postId,
+                                                            @AuthenticationPrincipal Principal user) {
+        log.info("user {} unliked post {}", user.getName(), postId);
+        return ResponseEntity.ok(postReactionService.unlikePost(postId, user.getName()));
+    }
+
+    @GetMapping("/posts/{postId}/reactions")
+    public ResponseEntity<PostReactionsResponse> getReactions(@PathVariable("postId") String postId,
+                                                              @AuthenticationPrincipal Principal user) {
+        log.info("retrieving reactions for post {} by user {}", postId, user.getName());
+        return ResponseEntity.ok(postReactionService.getReactions(postId, user.getName()));
+    }
+
+    @PostMapping("/posts/{postId}/comments")
+    public ResponseEntity<PostReactionsResponse> addComment(@PathVariable("postId") String postId,
+                                                            @AuthenticationPrincipal Principal user,
+                                                            @RequestBody @Valid CommentRequest request) {
+        log.info("user {} adding comment on post {}", user.getName(), postId);
+        return ResponseEntity.ok(postReactionService.addComment(postId, user.getName(), request));
     }
 }

@@ -110,7 +110,8 @@ public class UserService {
     }
 
     public boolean isFollowing(String userA, String userb) {
-        return userRepository.isFollowing(userA, userb);
+        Boolean isFollowing = userRepository.isFollowing(userA, userb);
+        return Boolean.TRUE.equals(isFollowing);
     }
 
     public List<User> findFollowers(String username) {
@@ -135,6 +136,17 @@ public class UserService {
         log.info("found {} that user {} is following", following.size(), username);
 
         return following;
+    }
+
+    public List<User> findSuggestions(String username, int limit) {
+        log.info("finding suggestions for user {} limit {}", username, limit);
+        return userRepository.findSuggestedUsers(username, limit);
+    }
+
+    @Transactional
+    public void unfollow(String followerUsername, String followingUsername) {
+        log.info("user {} will unfollow {}", followerUsername, followingUsername);
+        userRepository.deleteFriendship(followerUsername, followingUsername);
     }
 
     private PagedResult<User> buildPagedResult(Page<User> page){

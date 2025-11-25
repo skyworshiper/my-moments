@@ -13,4 +13,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     List<User> findByUsernameIn(List<String> usernames);
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
+
+    List<User> findTop20ByUsernameContainingIgnoreCaseOrUserProfile_DisplayNameContainingIgnoreCase(
+            String username, String displayName);
 }

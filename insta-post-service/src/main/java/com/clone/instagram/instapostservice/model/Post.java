@@ -33,4 +33,8 @@ public class Post {
 
     @NonNull
     private String caption;
+
+    private long likeCount = 0L;
+
+    private long commentCount = 0L;
 }

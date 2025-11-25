@@ -76,6 +76,23 @@ export function getAllUsers() {
   });
 }
 
+export function searchUsers(query, limit = 20) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  const params = new URLSearchParams();
+  if (query) {
+    params.append("q", query);
+  }
+  params.append("limit", limit);
+
+  return request({
+    url: API_BASE_URL + "/auth/users/search?" + params.toString(),
+    method: "GET"
+  });
+}
+
 export function uploadImage(uploadImageRequest) {
   if (!localStorage.getItem(ACCESS_TOKEN)) {
     return Promise.reject("No access token set.");
@@ -147,6 +164,27 @@ export function follow(followRequest) {
   });
 }
 
+export function unfollow(followRequest) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: API_BASE_URL + "/graph/users/followers",
+    method: "DELETE",
+    body: JSON.stringify(followRequest)
+  });
+}
+export function deletePost(postId) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: API_BASE_URL + "/post/posts/" + postId,
+    method: "DELETE"
+  });
+}
 export function getfollowersAndFollowing(username) {
   if (!localStorage.getItem(ACCESS_TOKEN)) {
     return Promise.reject("No access token set.");
@@ -196,7 +234,7 @@ export function getFeed(username, pagingState) {
     return Promise.reject("No access token set.");
   }
 
-  let url = API_BASE_URL + "/feed/feed/" + username;
+  let url = API_BASE_URL + "/feed/" + username;
 
   if (pagingState != null) {
     url = url + "?ps=" + pagingState;
@@ -205,5 +243,95 @@ export function getFeed(username, pagingState) {
   return request({
     url: url,
     method: "GET"
+  });
+}
+
+export function getSuggestions(username, limit = 5) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: `${API_BASE_URL}/graph/users/${username}/suggestions?limit=${limit}`,
+    method: "GET"
+  });
+}
+
+export function getPostReactions(postId) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: API_BASE_URL + "/post/posts/" + postId + "/reactions",
+    method: "GET"
+  });
+}
+
+export function likePost(postId) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: API_BASE_URL + "/post/posts/" + postId + "/likes",
+    method: "POST"
+  });
+}
+
+export function unlikePost(postId) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: API_BASE_URL + "/post/posts/" + postId + "/likes",
+    method: "DELETE"
+  });
+}
+
+export function addComment(postId, text) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: API_BASE_URL + "/post/posts/" + postId + "/comments",
+    method: "POST",
+    body: JSON.stringify({ text })
+  });
+}
+
+export function getConversationSummaries() {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: `${API_BASE_URL}/post/messages/conversations`,
+    method: "GET"
+  });
+}
+
+export function getConversationWith(username) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: `${API_BASE_URL}/post/messages/conversations/${username}`,
+    method: "GET"
+  });
+}
+
+export function sendMessage(messageRequest) {
+  if (!localStorage.getItem(ACCESS_TOKEN)) {
+    return Promise.reject("No access token set.");
+  }
+
+  return request({
+    url: `${API_BASE_URL}/post/messages`,
+    method: "POST",
+    body: JSON.stringify(messageRequest)
   });
 }
