@@ -73,7 +73,7 @@ class MessagesCenter extends Component {
   handleSend = () => {
     const { selectedUser, messageText } = this.state;
     if (!selectedUser) {
-      antdMessage.warning("请选择一个聊天对象");
+      antdMessage.warning("Please select a user to chat");
       return;
     }
     if (!messageText.trim()) {
@@ -95,7 +95,7 @@ class MessagesCenter extends Component {
       })
       .catch(() => {
         this.setState({ isSending: false });
-        antdMessage.error("发送失败，请稍后再试");
+        antdMessage.error("Failed to send message, please try again");
       });
   };
 
@@ -125,7 +125,7 @@ class MessagesCenter extends Component {
         <div className="messages-empty-chat">
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="还没有消息，开始对话吧"
+            description="No messages yet, start a conversation"
           />
         </div>
       );
@@ -144,7 +144,7 @@ class MessagesCenter extends Component {
             >
               <div className="message-content">{message.content}</div>
               <div className="message-time">
-                {new Date(message.createdAt).toLocaleTimeString("zh-CN", {
+                {new Date(message.createdAt).toLocaleTimeString("en-US", {
                   hour: "2-digit",
                   minute: "2-digit"
                 })}
@@ -174,7 +174,7 @@ class MessagesCenter extends Component {
         <Drawer
           title={
             <div className="messages-header">
-              <span>消息</span>
+              <span>Messages</span>
             </div>
           }
           width={600}
@@ -186,7 +186,7 @@ class MessagesCenter extends Component {
             <div className="messages-sidebar">
               <div className="messages-search">
                 <Search
-                  placeholder="搜索用户..."
+                  placeholder="Search users..."
                   onSearch={this.handleSearchUser}
                   allowClear
                 />
@@ -212,13 +212,13 @@ class MessagesCenter extends Component {
                         <div className="messages-list-content">
                           <div className="messages-list-name">{item.username}</div>
                           <div className="messages-list-preview">
-                            {item.lastMessage || "开始聊天"}
+                            {item.lastMessage || "Start chatting"}
                           </div>
                         </div>
                         {item.lastMessageAt && (
                           <div className="messages-list-time">
                             {new Date(item.lastMessageAt).toLocaleTimeString(
-                              "zh-CN",
+                              "en-US",
                               { hour: "2-digit", minute: "2-digit" }
                             )}
                           </div>
@@ -230,7 +230,7 @@ class MessagesCenter extends Component {
                   <div className="messages-empty">
                     <Empty
                       image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description="暂无会话"
+                      description="No conversations"
                     />
                   </div>
                 )}
@@ -252,7 +252,7 @@ class MessagesCenter extends Component {
                       onChange={e =>
                         this.setState({ messageText: e.target.value })
                       }
-                      placeholder="输入消息..."
+                      placeholder="Type a message..."
                       onPressEnter={e => {
                         if (!e.shiftKey) {
                           e.preventDefault();
@@ -267,7 +267,7 @@ class MessagesCenter extends Component {
                       disabled={!messageText.trim()}
                       className="messages-send-btn"
                     >
-                      发送
+                      Send
                     </Button>
                   </div>
                 </>
@@ -275,10 +275,10 @@ class MessagesCenter extends Component {
                 <div className="messages-welcome">
                   <Icon type="message" className="messages-welcome-icon" />
                   <div className="messages-welcome-text">
-                    选择一个会话开始聊天
+                    Select a conversation to start chatting
                   </div>
                   <div className="messages-welcome-hint">
-                    在左侧搜索用户或选择已有会话
+                    Search for a user or select an existing conversation
                   </div>
                 </div>
               )}

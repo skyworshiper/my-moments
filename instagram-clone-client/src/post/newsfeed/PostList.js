@@ -227,8 +227,6 @@ class PostList extends Component {
               className={liked ? "post-action liked" : "post-action"}
               onClick={() => this.handleToggleLike(item)}
             />
-            <Icon type="message" className="post-action" />
-            <Icon type="upload" className="post-action" />
             <Icon type="book" className="post-action-book" />
             {this.state.currentUser &&
               item.username === this.state.currentUser.username && (

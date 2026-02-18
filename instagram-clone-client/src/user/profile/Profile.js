@@ -331,6 +331,7 @@ class Profile extends Component {
                 <PostGrid
                   onGetUserPosts={this.handleGetUserPosts}
                   posts={this.state.posts}
+                  showCaption={false}
                 />
               </TabPane>
               <TabPane

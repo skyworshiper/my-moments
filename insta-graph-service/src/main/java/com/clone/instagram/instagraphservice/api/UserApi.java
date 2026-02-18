@@ -8,6 +8,7 @@ import com.clone.instagram.instagraphservice.service.UserService;
 import com.clone.instagram.instagraphservice.util.AppConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -88,8 +89,14 @@ public class UserApi {
     @GetMapping("/users/{username}/suggestions")
     public ResponseEntity<?> findSuggestions(@PathVariable String username,
                                              @RequestParam(value = "limit", defaultValue = "5") int limit) {
-        int cappedLimit = Math.min(Math.max(limit, 1), 20);
-        return ResponseEntity.ok(userService.findSuggestions(username, cappedLimit));
+        try {
+            int cappedLimit = Math.min(Math.max(limit, 1), 20);
+            return ResponseEntity.ok(userService.findSuggestions(username, cappedLimit));
+        } catch (Exception e) {
+            log.error("Error finding suggestions for user: {}", username, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, "Failed to fetch suggestions: " + e.getMessage()));
+        }
     }
 
     @DeleteMapping("/users/followers")

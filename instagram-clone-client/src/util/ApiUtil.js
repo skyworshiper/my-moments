@@ -180,9 +180,24 @@ export function deletePost(postId) {
     return Promise.reject("No access token set.");
   }
 
-  return request({
-    url: API_BASE_URL + "/post/posts/" + postId,
-    method: "DELETE"
+  const headers = new Headers();
+  headers.append(
+    "Authorization",
+    "Bearer " + localStorage.getItem(ACCESS_TOKEN)
+  );
+
+  return fetch(API_BASE_URL + "/post/posts/" + postId, {
+    method: "DELETE",
+    headers: headers
+  }).then(response => {
+    if (!response.ok) {
+      return response.json().then(json => Promise.reject(json));
+    }
+    // 204 No Content 没有响应体，直接返回成功
+    if (response.status === 204) {
+      return Promise.resolve();
+    }
+    return response.json();
   });
 }
 export function getfollowersAndFollowing(username) {
